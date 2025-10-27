@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: rs-web
+  labels:
+    app: employees
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: employees
+  template:
+    metadata:
+      labels:
+        app: employees
+    spec:
+      imagePullSecrets:
+        - name: ecr-secret
+      containers:
+      - name: web
+        image: 992382762279.dkr.ecr.us-east-1.amazonaws.com/clo835-web:1.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        - name: DBHOST
+          value: "mysql-service"
+        - name: DBUSER
+          value: "root"
+        - name: DBPWD
+          value: "password"
+        - name: DBPORT
+          value: "3306"
+        - name: DATABASE
+          value: "employees"
+

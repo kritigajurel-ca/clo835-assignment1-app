@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-deploy
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: employees
+  template:
+    metadata:
+      labels:
+        app: employees
+    spec:
+      imagePullSecrets:
+        - name: ecr-secret     # ✅ Needed for ECR authentication
+      containers:
+      - name: web
+        image: 992382762279.dkr.ecr.us-east-1.amazonaws.com/clo835-web:1.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        - name: DBHOST
+          value: "mysql-service"   # ✅ matches MySQL Service name
+        - name: DBUSER
+          value: "root"
+        - name: DBPWD
+          value: "password"
+        - name: DBPORT
+          value: "3306"
+        - name: DATABASE
+          value: "employees"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-service
+spec:
+  type: NodePort
+  selector:
+    app: employees
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+    nodePort: 30000
